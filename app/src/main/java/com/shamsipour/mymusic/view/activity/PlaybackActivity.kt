@@ -14,6 +14,7 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.lifecycleScope
 import com.shamsipour.mymusic.R
+import com.shamsipour.mymusic.databinding.ActivityPlaybackBinding
 import com.shamsipour.mymusic.util.ImageFinder
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
@@ -23,19 +24,8 @@ import kotlin.concurrent.fixedRateTimer
 
 class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
-
-    private lateinit var artwork:ImageView
-    private lateinit var title:TextView
-    private lateinit var artist:TextView
-    private lateinit var seekBar: SeekBar
-    private lateinit var current:TextView
-    private lateinit var length:TextView
+    lateinit var binding: ActivityPlaybackBinding
     private lateinit var timer: Timer
-    private lateinit var repeat: ImageView
-    private lateinit var shuffle: ImageView
-    private lateinit var playback: ImageView
-    private lateinit var reverse: ImageView
-    private lateinit var forward: ImageView
     private var isPlaying:Boolean = false
     private var isServiceRunning:Boolean = false
     private var isRepeat:Boolean = false
@@ -43,7 +33,8 @@ class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, Vi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_playback)
+        binding = ActivityPlaybackBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         initialize()
         val filter:IntentFilter = IntentFilter().apply {
             addAction("com.shamsipour.mymusic.SWITCH_SONG")
@@ -58,23 +49,12 @@ class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, Vi
 
 
     private fun initialize(){
-        artist = findViewById(R.id.artist)
-        title = findViewById(R.id.title)
-        artwork = findViewById(R.id.artwork)
-        seekBar = findViewById(R.id.seekbar)
-        seekBar.setOnSeekBarChangeListener(this)
-        current = findViewById(R.id.current)
-        length = findViewById(R.id.length)
-        repeat = findViewById(R.id.repeat)
-        repeat.setOnClickListener(this)
-        shuffle = findViewById(R.id.shuffle)
-        shuffle.setOnClickListener(this)
-        playback = findViewById(R.id.play_pause)
-        playback.setOnClickListener(this)
-        reverse = findViewById(R.id.reverse)
-        reverse.setOnClickListener(this)
-        forward = findViewById(R.id.forward)
-        forward.setOnClickListener(this)
+        binding.seekbar.setOnSeekBarChangeListener(this)
+        binding.repeat.setOnClickListener(this)
+        binding.shuffle.setOnClickListener(this)
+        binding.playPause.setOnClickListener(this)
+        binding.reverse.setOnClickListener(this)
+        binding.forward.setOnClickListener(this)
         sendBroadcast(Intent("com.mymusic.service.GET_INFO"))
         setButtons(isServiceRunning)
     }
@@ -93,15 +73,15 @@ class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, Vi
                 ++minute
             }
             lifecycleScope.launch(Dispatchers.Main){
-                if (current.text.toString() == length.text.toString()){
+                if (binding.current.text.toString() == binding.length.text.toString()){
                     this.cancel()
-                    current.text = "0:00"
+                    binding.current.text = "0:00"
                 }else{
-                    seekBar.progress += 1
+                    binding.seekbar.progress += 1
                     if(second < 10)
-                        current.text = "$minute:0$second"
+                        binding.current.text = "$minute:0$second"
                     else
-                        current.text = "$minute:$second"
+                        binding.current.text = "$minute:$second"
                 }
             }
         }
@@ -117,36 +97,36 @@ class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, Vi
             isShuffle = bundle.getBoolean("shuffle")
             val _current = bundle.getInt("current")
             val _length = bundle.getInt("length")
-            artist.text = bundle.getString("artist")
-            title.text = bundle.getString("title")
+            binding.artist.text = bundle.getString("artist")
+            binding.title.text = bundle.getString("title")
             val albumId = bundle.getString("albumId")
             val sArtworkUri: Uri = Uri.parse("content://media/external/audio/albumart")
             val albumArtUri: Uri = ContentUris.withAppendedId(sArtworkUri, albumId!!.toLong())
-            Picasso.get().load(albumArtUri).placeholder(R.drawable.def).into(artwork)
+            Picasso.get().load(albumArtUri).placeholder(R.drawable.def).into(binding.artwork)
             val currentMinute = _current / 1000 / 60
             val currentSecond = _current / 1000 % 60
             if(currentSecond<10)
-                current.text = "$currentMinute:0$currentSecond"
+                binding.current.text = "$currentMinute:0$currentSecond"
             else
-                current.text = "$currentMinute:$currentSecond"
+                binding.current.text = "$currentMinute:$currentSecond"
             val minuteLength = _length / 1000 / 60
             val secondLength = _length / 1000 % 60
             if(secondLength < 10)
-                length.text = "$minuteLength:0$secondLength"
+                binding.length.text = "$minuteLength:0$secondLength"
             else
-                length.text = "$minuteLength:$secondLength"
-            seekBar.max = (_length / 1000)
-            seekBar.progress = (_current / 1000)
+                binding.length.text = "$minuteLength:$secondLength"
+            binding.seekbar.max = (_length / 1000)
+            binding.seekbar.progress = (_current / 1000)
             if(isShuffle)
-                shuffle.backgroundTintList = AppCompatResources.getColorStateList(this,R.color.teal_200)
+                binding.shuffle.backgroundTintList = AppCompatResources.getColorStateList(this,R.color.teal_200)
             else
-                shuffle.backgroundTintList = AppCompatResources.getColorStateList(this,R.color.white)
+                binding.shuffle.backgroundTintList = AppCompatResources.getColorStateList(this,R.color.white)
             if(isRepeat)
-                repeat.backgroundTintList = AppCompatResources.getColorStateList(this,R.color.teal_200)
+                binding.repeat.backgroundTintList = AppCompatResources.getColorStateList(this,R.color.teal_200)
             else
-                repeat.backgroundTintList = AppCompatResources.getColorStateList(this,R.color.white)
+                binding.repeat.backgroundTintList = AppCompatResources.getColorStateList(this,R.color.white)
             if(isPlaying){
-                playback.setImageResource(R.drawable.ic_pause)
+                binding.playPause.setImageResource(R.drawable.ic_pause)
                 timer = counter(currentMinute,currentSecond)
             }
         }
@@ -159,20 +139,20 @@ class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, Vi
 
         val minuteLength = _length / 1000 / 60
         val secondLength = _length / 1000 % 60
-        current.text = "0:00"
+        binding.current.text = "0:00"
         if(secondLength < 10)
-            length.text = "$minuteLength:0$secondLength"
+            binding.length.text = "$minuteLength:0$secondLength"
         else
-            length.text = "$minuteLength:$secondLength"
-        title.text = _title
-        artist.text = _artist
+            binding.length.text = "$minuteLength:$secondLength"
+        binding.title.text = _title
+        binding.artist.text = _artist
         val sArtworkUri: Uri = Uri.parse("content://media/external/audio/albumart")
         val albumArtUri: Uri = ContentUris.withAppendedId(sArtworkUri, _albumId.toLong())
-        Picasso.get().load(albumArtUri).placeholder(R.drawable.def).into(artwork)
-        seekBar.progress = 0
-        seekBar.max = _length / 1000
+        Picasso.get().load(albumArtUri).placeholder(R.drawable.def).into(binding.artwork)
+        binding.seekbar.progress = 0
+        binding.seekbar.max = _length / 1000
         if(isPlaying)
-            timer = counter(seekBar.progress / 60,seekBar.progress % 60)
+            timer = counter(binding.seekbar.progress / 60,binding.seekbar.progress % 60)
     }
 
     fun setButtons(enable:Boolean){
@@ -181,32 +161,32 @@ class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, Vi
         isPlaying = enable
 
         if(!enable){
-            repeat.isEnabled = false
-            repeat.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.gray)
-            shuffle.isEnabled = false
-            shuffle.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.gray)
-            playback.isEnabled = false
-            reverse.isEnabled = false
-            reverse.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.gray)
-            forward.isEnabled = false
-            forward.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.gray)
-            seekBar.isEnabled = false
+            binding.repeat.isEnabled = false
+            binding.repeat.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.gray)
+            binding.shuffle.isEnabled = false
+            binding.shuffle.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.gray)
+            binding.playPause.isEnabled = false
+            binding.reverse.isEnabled = false
+            binding.reverse.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.gray)
+            binding.forward.isEnabled = false
+            binding.forward.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.gray)
+            binding.seekbar.isEnabled = false
             if(this::timer.isInitialized)
                 timer.cancel()
-            Picasso.get().load(R.drawable.def).into(artwork)
-            title.text = ""
-            artist.text = ""
+            Picasso.get().load(R.drawable.def).into(binding.artwork)
+            binding.title.text = ""
+            binding.artist.text = ""
         } else{
-            repeat.isEnabled = true
-            repeat.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
-            shuffle.isEnabled = true
-            shuffle.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
-            playback.isEnabled = true
-            reverse.isEnabled = true
-            reverse.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
-            forward.isEnabled = true
-            forward.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
-            seekBar.isEnabled = true
+            binding.repeat.isEnabled = true
+            binding.repeat.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
+            binding.shuffle.isEnabled = true
+            binding.shuffle.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
+            binding.playPause.isEnabled = true
+            binding.reverse.isEnabled = true
+            binding.reverse.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
+            binding.forward.isEnabled = true
+            binding.forward.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
+            binding.seekbar.isEnabled = true
         }
     }
 
@@ -217,18 +197,18 @@ class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, Vi
             R.id.forward -> sendBroadcast(Intent("com.mymusic.service.FORWARD"))
             R.id.repeat -> {
                 if (isRepeat)
-                    repeat.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
+                    binding.repeat.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
                 else
-                    repeat.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.teal_200)
+                    binding.repeat.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.teal_200)
 
                 sendBroadcast(Intent("com.mymusic.service.SET_REPEAT"))
                 isRepeat = !isRepeat
             }
             R.id.shuffle -> {
              if (isShuffle)
-                 shuffle.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
+                 binding.shuffle.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.white)
              else
-                 shuffle.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.teal_200)
+                 binding.shuffle.backgroundTintList = AppCompatResources.getColorStateList(this, R.color.teal_200)
 
                 sendBroadcast(Intent("com.mymusic.service.SET_SHUFFLE"))
                 isShuffle = !isShuffle
@@ -247,7 +227,7 @@ class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, Vi
         p0?.let {
             val currentMinute = p0.progress / 60
             val currentSecond = p0.progress % 60
-            current.text = "$currentMinute:$currentSecond"
+            binding.current.text = "$currentMinute:$currentSecond"
             if(isPlaying)
                 timer = counter(currentMinute,currentSecond)
             sendBroadcast(
@@ -270,12 +250,12 @@ class PlaybackActivity : AppCompatActivity(),SeekBar.OnSeekBarChangeListener, Vi
                     updateView(title!!,artist!!,albumId!!,length)
                 }
                 "com.shamsipour.mymusic.PLAY" -> {
-                    playback.setImageResource(R.drawable.ic_pause)
-                    timer = counter(seekBar.progress / 60, seekBar.progress % 60)
+                    binding.playPause.setImageResource(R.drawable.ic_pause)
+                    timer = counter(binding.seekbar.progress / 60, binding.seekbar.progress % 60)
                     isPlaying = true
                 }
                 "com.shamsipour.mymusic.PAUSE" -> {
-                    playback.setImageResource(R.drawable.ic_play)
+                    binding.playPause.setImageResource(R.drawable.ic_play)
                     timer.cancel()
                     isPlaying = false
                 }

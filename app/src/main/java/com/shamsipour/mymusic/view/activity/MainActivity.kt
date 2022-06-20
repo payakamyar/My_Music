@@ -42,7 +42,7 @@ import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListener, TabLayout.OnTabSelectedListener {
 
-    lateinit var activityBinding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
     private var isServiceRunning = false
     lateinit var imageFinder: ImageFinder
     lateinit var loadSongsViewModel:DataViewModel
@@ -67,8 +67,8 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityBinding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(activityBinding.root)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         if(Build.VERSION.SDK_INT > 22){
             val permissions:Array<String> = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -104,10 +104,10 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
         receiver = PlayBroadcast(this)
         registerReceiver(receiver,filter)
         val include: View = findViewById(R.id.bottom_playback2)
-        activityBinding.bottomPlayback2.linearlayout.setOnClickListener(this)
-        activityBinding.bottomPlayback2.smallReverse.setOnClickListener(this)
-        activityBinding.bottomPlayback2.smallPlayback.setOnClickListener(this)
-        activityBinding.bottomPlayback2.smallForward.setOnClickListener(this)
+        binding.bottomPlayback2.linearlayout.setOnClickListener(this)
+        binding.bottomPlayback2.smallReverse.setOnClickListener(this)
+        binding.bottomPlayback2.smallPlayback.setOnClickListener(this)
+        binding.bottomPlayback2.smallForward.setOnClickListener(this)
         imageFinder = ImageFinder()
         setButtons(isServiceRunning)
         viewPagerAndTabLayoutInit()
@@ -137,8 +137,8 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
         }
 
         val adapter = PagerAdapter(this,array)
-        activityBinding.viewPager.adapter = adapter
-        TabLayoutMediator(activityBinding.tabLayout,activityBinding.viewPager){ tab,position ->
+        binding.viewPager.adapter = adapter
+        TabLayoutMediator(binding.tabLayout,binding.viewPager){ tab,position ->
             when(position){
                 0 ->
                     tab.text = "Albums"
@@ -148,10 +148,10 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
                     tab.text = "Playlists"
             }}.attach()
 
-        for (t in 0 until activityBinding.tabLayout.tabCount){
-            val tab: TabLayout.Tab = activityBinding.tabLayout.getTabAt(t)!!
-            val tabView: View? = if(activityBinding.tabLayout.getTabAt(t) !=
-                                    activityBinding.tabLayout.getTabAt(activityBinding.tabLayout.selectedTabPosition))
+        for (t in 0 until binding.tabLayout.tabCount){
+            val tab: TabLayout.Tab = binding.tabLayout.getTabAt(t)!!
+            val tabView: View? = if(binding.tabLayout.getTabAt(t) !=
+                                    binding.tabLayout.getTabAt(binding.tabLayout.selectedTabPosition))
                 LayoutInflater.from(this).inflate(R.layout.tab_unselected,null)
             else
                 LayoutInflater.from(this).inflate(R.layout.tab_selected,null)
@@ -159,28 +159,28 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
             tabView!!.findViewById<TextView>(R.id.tab_title).text = tab.text
             tab.customView = tabView
         }
-        activityBinding.tabLayout.addOnTabSelectedListener(this)
+        binding.tabLayout.addOnTabSelectedListener(this)
     }
 
     fun setButtons(enable:Boolean){
         if(!enable){
 
-            activityBinding.bottomPlayback2.smallPlayback.isEnabled = false
+            binding.bottomPlayback2.smallPlayback.isEnabled = false
 
-            activityBinding.bottomPlayback2.smallPlayback.background =
+            binding.bottomPlayback2.smallPlayback.background =
                 AppCompatResources.getDrawable(this,R.drawable.ic_play)
 
-            activityBinding.bottomPlayback2.smallPlayback.backgroundTintList =
+            binding.bottomPlayback2.smallPlayback.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.gray)
 
-            activityBinding.bottomPlayback2.smallForward.isEnabled = false
+            binding.bottomPlayback2.smallForward.isEnabled = false
 
-            activityBinding.bottomPlayback2.smallForward.backgroundTintList =
+            binding.bottomPlayback2.smallForward.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.gray)
 
-            activityBinding.bottomPlayback2.smallReverse.isEnabled = false
+            binding.bottomPlayback2.smallReverse.isEnabled = false
 
-            activityBinding.bottomPlayback2.smallReverse.backgroundTintList =
+            binding.bottomPlayback2.smallReverse.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.gray)
 
             val bitmap:Bitmap
@@ -191,23 +191,23 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
             }
 
             runBlocking { bitmap =  job.await() }
-            activityBinding.bottomPlayback2.smallArtwork.setImageBitmap(bitmap)
-            activityBinding.bottomPlayback2.smallTitle.text = ""
-            activityBinding.bottomPlayback2.smallArtist.text = ""
+            binding.bottomPlayback2.smallArtwork.setImageBitmap(bitmap)
+            binding.bottomPlayback2.smallTitle.text = ""
+            binding.bottomPlayback2.smallArtist.text = ""
         } else{
-            activityBinding.bottomPlayback2.smallPlayback.isEnabled = true
+            binding.bottomPlayback2.smallPlayback.isEnabled = true
 
-            activityBinding.bottomPlayback2.smallPlayback.backgroundTintList =
+            binding.bottomPlayback2.smallPlayback.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.white)
 
-            activityBinding.bottomPlayback2.smallForward.isEnabled = true
+            binding.bottomPlayback2.smallForward.isEnabled = true
 
-            activityBinding.bottomPlayback2.smallForward.backgroundTintList =
+            binding.bottomPlayback2.smallForward.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.white)
 
-            activityBinding.bottomPlayback2.smallReverse.isEnabled = true
+            binding.bottomPlayback2.smallReverse.isEnabled = true
 
-            activityBinding.bottomPlayback2.smallReverse.backgroundTintList =
+            binding.bottomPlayback2.smallReverse.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.white)
         }
     }
@@ -218,13 +218,13 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
             setButtons(true)
         }
 
-        activityBinding.bottomPlayback2.smallTitle.text = title
-        activityBinding.bottomPlayback2.smallArtist.text = artist
+        binding.bottomPlayback2.smallTitle.text = title
+        binding.bottomPlayback2.smallArtist.text = artist
         _albumId = albumId
         val image = lifecycleScope.async { imageFinder.fetchCompressedArtwork(this@MainActivity,
             albumId,50,50,ImageFinder.DEFAULT_OPTIONS)}
         runBlocking {
-            activityBinding.bottomPlayback2.smallArtwork.setImageBitmap(image.await())
+            binding.bottomPlayback2.smallArtwork.setImageBitmap(image.await())
         }
     }
 
@@ -236,18 +236,18 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
         bundle?.let {
             val isPlaying = bundle.getBoolean("playing")
             if(isPlaying)
-                activityBinding.bottomPlayback2.smallPlayback.background =
+                binding.bottomPlayback2.smallPlayback.background =
                     AppCompatResources.getDrawable(this,R.drawable.ic_pause)
             else
-                activityBinding.bottomPlayback2.smallPlayback.background =
+                binding.bottomPlayback2.smallPlayback.background =
                     AppCompatResources.getDrawable(this,R.drawable.ic_play)
 
-            activityBinding.bottomPlayback2.smallArtist.text = bundle.getString("artist")
-            activityBinding.bottomPlayback2.smallTitle.text = bundle.getString("title")
+            binding.bottomPlayback2.smallArtist.text = bundle.getString("artist")
+            binding.bottomPlayback2.smallTitle.text = bundle.getString("title")
             val albumId = bundle.getString("albumId")
             val sArtworkUri: Uri = Uri.parse("content://media/external/audio/albumart")
             val albumArtUri: Uri = ContentUris.withAppendedId(sArtworkUri, albumId!!.toLong())
-            Picasso.get().load(albumArtUri).placeholder(R.drawable.def).into(activityBinding.bottomPlayback2.smallArtwork)
+            Picasso.get().load(albumArtUri).placeholder(R.drawable.def).into(binding.bottomPlayback2.smallArtwork)
         }
     }
 
@@ -259,13 +259,13 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
             when(p1?.action){
                 "com.shamsipour.mymusic.PLAY" -> {
 
-                    activityBinding.bottomPlayback2.smallPlayback.background =
+                    binding.bottomPlayback2.smallPlayback.background =
                         AppCompatResources.getDrawable(applicationContext,R.drawable.ic_pause)
 
                 }
                 "com.shamsipour.mymusic.PAUSE" -> {
 
-                    activityBinding.bottomPlayback2.smallPlayback.background =
+                    binding.bottomPlayback2.smallPlayback.background =
                         AppCompatResources.getDrawable(applicationContext,R.drawable.ic_play)
 
                 }

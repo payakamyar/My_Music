@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.shamsipour.mymusic.R
 import com.shamsipour.mymusic.adapter.AlbumRVAdapter
 import com.shamsipour.mymusic.adapter.PlaylistRVAdapter
+import com.shamsipour.mymusic.databinding.FragmentAlbumBinding
 import com.shamsipour.mymusic.model.data.AlbumItem
 import com.shamsipour.mymusic.model.data.PlaylistItem
 import com.shamsipour.mymusic.util.ImageFinder
@@ -25,20 +26,19 @@ import kotlinx.coroutines.withContext
 
 class AlbumFragment : Fragment() {
 
-    private lateinit var fragmentView:View
+    private lateinit var binding: FragmentAlbumBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        fragmentView = inflater.inflate(R.layout.fragment_album, container, false)
+
+        binding = FragmentAlbumBinding.inflate(layoutInflater)
         setUpRecyclerView()
-        return fragmentView
+        return binding.root
     }
     private fun setUpRecyclerView() {
 
-        val textView: TextView = fragmentView.findViewById(R.id.message_text_view2)
-        val progressBar: ProgressBar = fragmentView.findViewById(R.id.progressbar2)
         val projection = arrayOf(
             MediaStore.Audio.Albums._ID,MediaStore.Audio.Albums.ALBUM
         )
@@ -48,22 +48,21 @@ class AlbumFragment : Fragment() {
             projection, projection[0]
         )
 
-        textView.visibility = View.VISIBLE
+        binding.messageTextView2.visibility = View.VISIBLE
 
         arrayList?.let {
-            progressBar.visibility = View.VISIBLE
-            textView.visibility = View.GONE
+            binding.progressbar2.visibility = View.VISIBLE
+            binding.messageTextView2.visibility = View.GONE
                     val albumRVAdapter = AlbumRVAdapter(
                         requireContext(), it
                     )
-                    val recyclerView: RecyclerView = fragmentView.findViewById(R.id.recyclerView)
-                    recyclerView.apply {
+            binding.recyclerView.apply {
                         adapter = albumRVAdapter
                         layoutManager = GridLayoutManager(
                             activity,2
                         )
                     }
-                    progressBar.visibility = View.GONE
+            binding.progressbar2.visibility = View.GONE
                 }
             }
         }

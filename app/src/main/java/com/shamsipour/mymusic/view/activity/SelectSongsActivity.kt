@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.shamsipour.mymusic.R
 import com.shamsipour.mymusic.adapter.SelectableRecyclerViewAdapter
+import com.shamsipour.mymusic.databinding.ActivitySelectSongsBinding
 import com.shamsipour.mymusic.interfaces.OnItemSelected
 import com.shamsipour.mymusic.model.data.SongItem
 import com.shamsipour.mymusic.viewmodel.DataViewModel
@@ -26,16 +27,15 @@ import kotlinx.coroutines.withContext
 
 class SelectSongsActivity : AppCompatActivity(),OnItemSelected {
 
+    lateinit var binding: ActivitySelectSongsBinding
     private  var playlistId:Long = -1
-    private lateinit var backBtn:ImageView
-    private lateinit var doneBtn:Button
-    private lateinit var recyclerView: RecyclerView
     private lateinit var itemList:ArrayList<SongItem>
     private lateinit var viewModel:DataViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_select_songs)
+        binding = ActivitySelectSongsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         playlistId = intent.getLongExtra("id",-1)
         initViews()
         setUpRecyclerView()
@@ -45,18 +45,15 @@ class SelectSongsActivity : AppCompatActivity(),OnItemSelected {
     private fun initViews(){
         itemList = ArrayList()
         viewModel = ViewModelProvider(this).get(DataViewModel::class.java)
-        backBtn = findViewById(R.id.back_btn)
-        backBtn.setOnClickListener{
+        binding.backBtn.setOnClickListener{
             finish()
         }
-        doneBtn = findViewById(R.id.done_btn)
-        doneBtn.setOnClickListener {
+        binding.doneBtn.setOnClickListener {
             if(playlistId > -1){
                 viewModel.addToPlaylist(this,playlistId,itemList)
                 finish()
             }
         }
-        recyclerView = findViewById(R.id.recyclerView)
     }
 
     private fun setUpRecyclerView(){
@@ -76,7 +73,7 @@ class SelectSongsActivity : AppCompatActivity(),OnItemSelected {
                 withContext(Dispatchers.Main){
                     val selectableRecyclerViewAdapter = SelectableRecyclerViewAdapter(this@SelectSongsActivity,
                         dataArrayList,this@SelectSongsActivity)
-                    recyclerView.apply {
+                    binding.recyclerView.apply {
                         adapter = selectableRecyclerViewAdapter
                         layoutManager = LinearLayoutManager(this@SelectSongsActivity,
                             LinearLayoutManager.VERTICAL,false)
@@ -110,9 +107,9 @@ class SelectSongsActivity : AppCompatActivity(),OnItemSelected {
     }
 
     override fun onSelect(songItem: SongItem) {
-        if(!doneBtn.isEnabled){
-            doneBtn.isEnabled = true
-            doneBtn.setTextColor(resources.getColor(R.color.white))
+        if(!binding.doneBtn.isEnabled){
+            binding.doneBtn.isEnabled = true
+            binding.doneBtn.setTextColor(resources.getColor(R.color.white))
         }
         itemList.add(songItem)
     }
@@ -120,8 +117,8 @@ class SelectSongsActivity : AppCompatActivity(),OnItemSelected {
     override fun onRemove(songItem: SongItem) {
         itemList.remove(songItem)
         if(itemList.isEmpty()){
-            doneBtn.isEnabled = false
-            doneBtn.setTextColor(resources.getColor(R.color.gray))
+            binding.doneBtn.isEnabled = false
+            binding.doneBtn.setTextColor(resources.getColor(R.color.gray))
         }
     }
 }

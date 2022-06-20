@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.shamsipour.mymusic.R
+import com.shamsipour.mymusic.databinding.FragmentDeleteBottomBinding
 import com.shamsipour.mymusic.enum.DataType
 import com.shamsipour.mymusic.view.activity.PlaylistItemsActivity
 import com.shamsipour.mymusic.viewmodel.DataViewModel
@@ -27,10 +28,7 @@ class DeleteBottomFragment : BottomSheetDialogFragment() {
     private var param2: Long? = null
     private var param3: String? = null
     private var param4: DataType? = null
-    private lateinit var fragmentView:View
-    private lateinit var nameTextView: TextView
-    private lateinit var positiveBtn: Button
-    private lateinit var cancelBtn: Button
+    private lateinit var binding: FragmentDeleteBottomBinding
     private lateinit var viewModel: DataViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,20 +46,17 @@ class DeleteBottomFragment : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        fragmentView = inflater.inflate(R.layout.fragment_delete_bottom, container, false)
+        binding = FragmentDeleteBottomBinding.inflate(layoutInflater)
         initViews()
         viewModel = (requireActivity() as PlaylistItemsActivity).loadSongsViewModel
 
-        return fragmentView
+        return binding.root
     }
 
     fun initViews(){
-        nameTextView = fragmentView.findViewById(R.id.item_name)
-        nameTextView.text = param1
-        positiveBtn = fragmentView.findViewById(R.id.ok_button)
-        cancelBtn = fragmentView.findViewById(R.id.cancel_button)
+        binding.itemName.text = param1
 
-        positiveBtn.setOnClickListener {
+        binding.okButton.setOnClickListener {
             when(param4){
                 DataType.PLAYLISTS -> viewModel.deletePlaylist(requireContext(),param2!!.toLong())
                 DataType.SONGS -> viewModel.removeFromPlaylist(requireContext(),param2!!.toLong(),param3!!)
@@ -70,7 +65,7 @@ class DeleteBottomFragment : BottomSheetDialogFragment() {
 
             dismiss()
         }
-        cancelBtn.setOnClickListener {
+        binding.cancelButton.setOnClickListener {
             dismiss()
         }
     }

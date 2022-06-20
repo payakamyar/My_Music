@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.shamsipour.mymusic.R
 import com.shamsipour.mymusic.adapter.PlayRecyclerViewAdapter
+import com.shamsipour.mymusic.databinding.FragmentAllSongsBinding
 import com.shamsipour.mymusic.enum.DataType
 import com.shamsipour.mymusic.interfaces.OnPlaylistItemLongClick
 import com.shamsipour.mymusic.model.data.SongItem
@@ -35,10 +36,7 @@ class AllSongsFragment : Fragment(), OnPlaylistItemLongClick {
 
     private var param1: DataType? = null
     private var param2: String? = null
-    private lateinit var textView:TextView
-    private lateinit var progressBar:ProgressBar
-    private lateinit var recyclerView:RecyclerView
-    private lateinit var fragmentView:View
+    private lateinit var binding: FragmentAllSongsBinding
     private lateinit var imageFinder: ImageFinder
     private lateinit var dataArrayList:ArrayList<SongItem>
     private lateinit var loadSongsViewModel:DataViewModel
@@ -89,18 +87,13 @@ class AllSongsFragment : Fragment(), OnPlaylistItemLongClick {
 
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?): View? {
-        fragmentView = inflater.inflate(R.layout.fragment_all_songs, container, false)
+
+        binding = FragmentAllSongsBinding.inflate(layoutInflater)
         imageFinder = ImageFinder()
-        initViews()
         setUpRecyclerView()
-        return fragmentView
+        return binding.root
     }
 
-    private fun initViews(){
-        textView = fragmentView.findViewById(R.id.message_text_view)
-        progressBar = fragmentView.findViewById(R.id.progressbar)
-        recyclerView = fragmentView.findViewById(R.id.recyclerView)
-    }
 
     private fun setUpRecyclerView(){
 
@@ -120,23 +113,23 @@ class AllSongsFragment : Fragment(), OnPlaylistItemLongClick {
             GlobalScope.launch(Dispatchers.Default) {
                 dataArrayList = cursorToArrayList(cursor)
                 withContext(Dispatchers.Main){
-                    progressBar.visibility = View.VISIBLE
-                    textView.visibility = View.GONE
+                    binding.progressbar.visibility = View.VISIBLE
+                    binding.messageTextView.visibility = View.GONE
                     val allSongsRecyclerViewAdapter = PlayRecyclerViewAdapter(requireContext(),dataArrayList,param1!!,
                         this@AllSongsFragment)
-                    recyclerView.apply {
+                    binding.recyclerView.apply {
                         adapter = allSongsRecyclerViewAdapter
                         layoutManager = LinearLayoutManager(activity,LinearLayoutManager.VERTICAL,false)
                     }
-                    progressBar.visibility = View.GONE
+                    binding.progressbar.visibility = View.GONE
                 }
             }
         }else{
-            textView.visibility = View.VISIBLE
-            progressBar.visibility = View.GONE
+            binding.messageTextView.visibility = View.VISIBLE
+            binding.progressbar.visibility = View.GONE
             val allSongsRecyclerViewAdapter = PlayRecyclerViewAdapter(requireContext(),
                 ArrayList(),param1!!,this@AllSongsFragment)
-            recyclerView.apply {
+            binding.recyclerView.apply {
                 adapter = allSongsRecyclerViewAdapter
                 layoutManager = LinearLayoutManager(activity,LinearLayoutManager.VERTICAL,false)
             }

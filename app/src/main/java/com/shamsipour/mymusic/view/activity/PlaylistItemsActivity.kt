@@ -33,7 +33,7 @@ import kotlinx.coroutines.*
 
 class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongSwitchListener, View.OnClickListener {
 
-    lateinit var playlistItemBinding: ActivityPlaylistItemsBinding
+    lateinit var binding: ActivityPlaylistItemsBinding
     lateinit var loadSongsViewModel:DataViewModel
     private lateinit var dataArrayList:ArrayList<SongItem>
     private var isServiceRunning = false
@@ -44,8 +44,8 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        playlistItemBinding = ActivityPlaylistItemsBinding.inflate(layoutInflater)
-        setContentView(playlistItemBinding.root)
+        binding = ActivityPlaylistItemsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         contentObserver = object : ContentObserver(null){
             override fun onChange(selfChange: Boolean) {
                 super.onChange(selfChange)
@@ -77,7 +77,7 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
         backBtn.setOnClickListener {
             finish()
         }
-        playlistItemBinding.addToPlaylistBtn.setOnClickListener {
+        binding.addToPlaylistBtn.setOnClickListener {
             val intent = Intent(baseContext,SelectSongsActivity::class.java)
             intent.putExtra("id",getIntent().getStringExtra("id")!!.toLong())
             startActivity(intent)
@@ -95,32 +95,32 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
         registerReceiver(receiver,filter)
 
         val include = findViewById<View>(R.id.bottom_playback)
-        playlistItemBinding.bottomPlayback.root.setOnClickListener(this)
-        playlistItemBinding.bottomPlayback.smallReverse.setOnClickListener(this)
-        playlistItemBinding.bottomPlayback.smallPlayback.setOnClickListener(this)
-        playlistItemBinding.bottomPlayback.smallForward.setOnClickListener(this)
+        binding.bottomPlayback.root.setOnClickListener(this)
+        binding.bottomPlayback.smallReverse.setOnClickListener(this)
+        binding.bottomPlayback.smallPlayback.setOnClickListener(this)
+        binding.bottomPlayback.smallForward.setOnClickListener(this)
         imageFinder = ImageFinder()
         setButtons(isServiceRunning)
     }
 
     fun setButtons(enable:Boolean){
         if(!enable){
-            playlistItemBinding.bottomPlayback.smallPlayback.isEnabled = false
+            binding.bottomPlayback.smallPlayback.isEnabled = false
 
-            playlistItemBinding.bottomPlayback.smallPlayback.background =
+            binding.bottomPlayback.smallPlayback.background =
                 AppCompatResources.getDrawable(this,R.drawable.ic_play)
 
-            playlistItemBinding.bottomPlayback.smallPlayback.backgroundTintList =
+            binding.bottomPlayback.smallPlayback.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.gray)
 
-            playlistItemBinding.bottomPlayback.smallForward.isEnabled = false
+            binding.bottomPlayback.smallForward.isEnabled = false
 
-            playlistItemBinding.bottomPlayback.smallForward.backgroundTintList =
+            binding.bottomPlayback.smallForward.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.gray)
 
-            playlistItemBinding.bottomPlayback.smallReverse.isEnabled = false
+            binding.bottomPlayback.smallReverse.isEnabled = false
 
-            playlistItemBinding.bottomPlayback.smallReverse.backgroundTintList =
+            binding.bottomPlayback.smallReverse.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.gray)
 
             val bitmap: Bitmap
@@ -130,23 +130,23 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
                     50, ImageFinder.DEFAULT_OPTIONS)
             }
             runBlocking { bitmap =  job.await() }
-            playlistItemBinding.bottomPlayback.smallArtwork.setImageBitmap(bitmap)
-            playlistItemBinding.bottomPlayback.smallTitle.text = ""
-            playlistItemBinding.bottomPlayback.smallArtist.text = ""
+            binding.bottomPlayback.smallArtwork.setImageBitmap(bitmap)
+            binding.bottomPlayback.smallTitle.text = ""
+            binding.bottomPlayback.smallArtist.text = ""
         } else{
-            playlistItemBinding.bottomPlayback.smallPlayback.isEnabled = true
+            binding.bottomPlayback.smallPlayback.isEnabled = true
 
-            playlistItemBinding.bottomPlayback.smallPlayback.backgroundTintList =
+            binding.bottomPlayback.smallPlayback.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.white)
 
-            playlistItemBinding.bottomPlayback.smallForward.isEnabled = true
+            binding.bottomPlayback.smallForward.isEnabled = true
 
-            playlistItemBinding.bottomPlayback.smallForward.backgroundTintList =
+            binding.bottomPlayback.smallForward.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.white)
 
-            playlistItemBinding.bottomPlayback.smallReverse.isEnabled = true
+            binding.bottomPlayback.smallReverse.isEnabled = true
 
-            playlistItemBinding.bottomPlayback.smallReverse.backgroundTintList =
+            binding.bottomPlayback.smallReverse.backgroundTintList =
                 AppCompatResources.getColorStateList(this, R.color.white)
         }
     }
@@ -159,18 +159,18 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
         bundle?.let {
             val isPlaying = bundle.getBoolean("playing")
             if(isPlaying)
-                playlistItemBinding.bottomPlayback.smallPlayback.background =
+                binding.bottomPlayback.smallPlayback.background =
                     AppCompatResources.getDrawable(this,R.drawable.ic_pause)
             else
-                playlistItemBinding.bottomPlayback.smallPlayback.background =
+                binding.bottomPlayback.smallPlayback.background =
                     AppCompatResources.getDrawable(this,R.drawable.ic_play)
 
-            playlistItemBinding.bottomPlayback.smallArtist.text = bundle.getString("artist")
-            playlistItemBinding.bottomPlayback.smallTitle.text = bundle.getString("title")
+            binding.bottomPlayback.smallArtist.text = bundle.getString("artist")
+            binding.bottomPlayback.smallTitle.text = bundle.getString("title")
             val albumId = bundle.getString("albumId")
             val sArtworkUri: Uri = Uri.parse("content://media/external/audio/albumart")
             val albumArtUri: Uri = ContentUris.withAppendedId(sArtworkUri, albumId!!.toLong())
-            Picasso.get().load(albumArtUri).placeholder(R.drawable.def).into(playlistItemBinding.bottomPlayback.smallArtwork)
+            Picasso.get().load(albumArtUri).placeholder(R.drawable.def).into(binding.bottomPlayback.smallArtwork)
         }
     }
 
@@ -188,24 +188,24 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
             GlobalScope.launch(Dispatchers.Default) {
                 dataArrayList = cursorToArrayList(cursor)
                 withContext(Dispatchers.Main){
-                    playlistItemBinding.progressbar.visibility = View.VISIBLE
-                    playlistItemBinding.messageTextView.visibility = View.GONE
+                    binding.progressbar.visibility = View.VISIBLE
+                    binding.messageTextView.visibility = View.GONE
                     val allSongsRecyclerViewAdapter = PlayRecyclerViewAdapter(baseContext,dataArrayList,DataType.PLAYLISTS,
                         this@PlaylistItemsActivity)
-                    playlistItemBinding.recyclerView.apply {
+                    binding.recyclerView.apply {
                         adapter = allSongsRecyclerViewAdapter
                         layoutManager = LinearLayoutManager(this@PlaylistItemsActivity,
                             LinearLayoutManager.VERTICAL,false)
                     }
-                    playlistItemBinding.progressbar.visibility = View.GONE
+                    binding.progressbar.visibility = View.GONE
                 }
             }
         }else{
-            playlistItemBinding.messageTextView.visibility = View.VISIBLE
-            playlistItemBinding.progressbar.visibility = View.GONE
+            binding.messageTextView.visibility = View.VISIBLE
+            binding.progressbar.visibility = View.GONE
             val allSongsRecyclerViewAdapter = PlayRecyclerViewAdapter(this,
                 ArrayList(),DataType.PLAYLISTS,this)
-            playlistItemBinding.recyclerView.apply {
+            binding.recyclerView.apply {
                 adapter = allSongsRecyclerViewAdapter
                 layoutManager = LinearLayoutManager(this@PlaylistItemsActivity, LinearLayoutManager.VERTICAL,false)
             }
@@ -267,13 +267,13 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
             isServiceRunning = true
             setButtons(true)
         }
-        playlistItemBinding.bottomPlayback.smallTitle.text = title
-        playlistItemBinding.bottomPlayback.smallArtist.text = artist
+        binding.bottomPlayback.smallTitle.text = title
+        binding.bottomPlayback.smallArtist.text = artist
         _albumId = albumId
         val image = lifecycleScope.async { imageFinder.fetchCompressedArtwork(this@PlaylistItemsActivity,
             albumId,50,50,ImageFinder.DEFAULT_OPTIONS)}
         runBlocking {
-            playlistItemBinding.bottomPlayback.smallArtwork.setImageBitmap(image.await())
+            binding.bottomPlayback.smallArtwork.setImageBitmap(image.await())
         }
     }
 
@@ -283,13 +283,13 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
             when(p1?.action){
                 "com.shamsipour.mymusic.PLAY" -> {
 
-                    playlistItemBinding.bottomPlayback.smallPlayback.background =
+                    binding.bottomPlayback.smallPlayback.background =
                         AppCompatResources.getDrawable(applicationContext,R.drawable.ic_pause)
 
                 }
                 "com.shamsipour.mymusic.PAUSE" -> {
 
-                    playlistItemBinding.bottomPlayback.smallPlayback.background =
+                    binding.bottomPlayback.smallPlayback.background =
                         AppCompatResources.getDrawable(applicationContext,R.drawable.ic_play)
 
                 }
