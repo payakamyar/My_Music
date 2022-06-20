@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.shamsipour.mymusic.R
 import com.shamsipour.mymusic.adapter.PlaylistRVAdapter
+import com.shamsipour.mymusic.databinding.FragmentPlaylistsBinding
 import com.shamsipour.mymusic.interfaces.SimpleCallback
 import com.shamsipour.mymusic.model.data.PlaylistItem
 import com.shamsipour.mymusic.model.data.SongItem
@@ -31,8 +32,7 @@ import kotlinx.coroutines.*
 
 class PlaylistsFragment : Fragment(), SimpleCallback {
 
-    lateinit var fragmentView:View
-    private lateinit var addPlaylistBtn:Button
+    private lateinit var fragmentBinding: FragmentPlaylistsBinding
     private lateinit var playlistRVAdapter:PlaylistRVAdapter
     private var arrayList: ArrayList<PlaylistItem>? = null
     private lateinit var loadSongsViewModel:DataViewModel
@@ -41,7 +41,7 @@ class PlaylistsFragment : Fragment(), SimpleCallback {
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?): View? {
-            fragmentView = inflater.inflate(R.layout.fragment_playlists, container, false)
+            fragmentBinding = FragmentPlaylistsBinding.inflate(layoutInflater)
             initViews()
             setUpRecyclerView()
             contentObserver = object : ContentObserver(null){
@@ -52,13 +52,12 @@ class PlaylistsFragment : Fragment(), SimpleCallback {
             }
             requireContext().contentResolver.registerContentObserver(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,true,
                 contentObserver!!)
-        return fragmentView
+        return fragmentBinding.root
     }
 
 
     private fun initViews(){
-        addPlaylistBtn = fragmentView.findViewById(R.id.add_playlist_btn)
-        addPlaylistBtn.setOnClickListener {
+        fragmentBinding.addPlaylistBtn.setOnClickListener {
             val fragment = CreatePlaylistBottomSheetFragment()
             fragment.show(requireActivity().supportFragmentManager,"createPlaylist")
         }
@@ -68,32 +67,28 @@ class PlaylistsFragment : Fragment(), SimpleCallback {
     private fun setUpRecyclerView(){
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val textView: TextView = fragmentView.findViewById(R.id.message_text_view2)
-            val progressBar: ProgressBar = fragmentView.findViewById(R.id.progressbar2)
-            textView.visibility = View.VISIBLE
+            fragmentBinding.messageTextView2.visibility = View.VISIBLE
 
             withContext(Dispatchers.IO){
                 getData()
             }
 
             arrayList?.let {
-                progressBar.visibility = View.VISIBLE
-                textView.visibility = View.GONE
+                fragmentBinding.progressbar2.visibility = View.VISIBLE
+                fragmentBinding.messageTextView2.visibility = View.GONE
 
 
                 playlistRVAdapter = PlaylistRVAdapter(requireContext(),it,this@PlaylistsFragment)
-                val recyclerView: RecyclerView = fragmentView.findViewById(R.id.recyclerView2)
-                recyclerView.apply {
+                fragmentBinding.recyclerView2.apply {
                     adapter = playlistRVAdapter
                     layoutManager = LinearLayoutManager(activity,
                         LinearLayoutManager.VERTICAL,false)
                 }
-                progressBar.visibility = View.GONE
+                fragmentBinding.progressbar2.visibility = View.GONE
             }?: kotlin.run {
 
                 playlistRVAdapter = PlaylistRVAdapter(requireContext(), ArrayList(),this@PlaylistsFragment)
-                val recyclerView: RecyclerView = fragmentView.findViewById(R.id.recyclerView2)
-                recyclerView.apply {
+                fragmentBinding.recyclerView2.apply {
                     adapter = playlistRVAdapter
                     layoutManager = LinearLayoutManager(activity,
                         LinearLayoutManager.VERTICAL,false)
@@ -125,7 +120,7 @@ class PlaylistsFragment : Fragment(), SimpleCallback {
         }
         val include: View = requireActivity().findViewById(R.id.bottom_playback2)
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(),
-                                        include.findViewById(R.id.linearlayout),"bottom_playback")
+            (requireActivity() as MainActivity).activityBinding.bottomPlayback2.root,"bottom_playback")
         startActivity(intent, options.toBundle())
     }
 
