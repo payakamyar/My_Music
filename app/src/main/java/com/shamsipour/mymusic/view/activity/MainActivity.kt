@@ -103,7 +103,6 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
         }
         receiver = PlayBroadcast(this)
         registerReceiver(receiver,filter)
-        val include: View = findViewById(R.id.bottom_playback2)
         binding.bottomPlayback2.linearlayout.setOnClickListener(this)
         binding.bottomPlayback2.smallReverse.setOnClickListener(this)
         binding.bottomPlayback2.smallPlayback.setOnClickListener(this)
@@ -303,7 +302,7 @@ class MainActivity : AppCompatActivity(),SongSwitchListener, View.OnClickListene
                 sendIntent.action = "com.mymusic.service.FORWARD"
                 sendBroadcast(sendIntent)
             }
-            R.id.linearlayout -> {
+            binding.bottomPlayback2.linearlayout.id -> {
                 val intent = Intent(this,PlaybackActivity::class.java)
                 startActivity(intent)
             }

@@ -94,8 +94,7 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
         receiver = PlayBroadcast(this)
         registerReceiver(receiver,filter)
 
-        val include = findViewById<View>(R.id.bottom_playback)
-        binding.bottomPlayback.root.setOnClickListener(this)
+        binding.bottomPlayback.linearlayout.setOnClickListener(this)
         binding.bottomPlayback.smallReverse.setOnClickListener(this)
         binding.bottomPlayback.smallPlayback.setOnClickListener(this)
         binding.bottomPlayback.smallForward.setOnClickListener(this)
@@ -254,7 +253,7 @@ class PlaylistItemsActivity : AppCompatActivity(), OnPlaylistItemLongClick,SongS
                 sendIntent.action = "com.mymusic.service.FORWARD"
                 sendBroadcast(sendIntent)
             }
-            R.id.linearlayout -> {
+            binding.bottomPlayback.linearlayout.id -> {
                 val intent = Intent(this,PlaybackActivity::class.java)
                 startActivity(intent)
             }
